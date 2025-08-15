@@ -66,6 +66,8 @@ Tenant_Tracker/
 ├── package.json              # Dependencies and npm scripts
 ├── package-lock.json         # Dependency lock file
 ├── README.md                 # Project documentation
+├── .env                      # Environment variables (not in git)
+├── .gitignore                # Git ignore file
 ├── node_modules/             # Installed dependencies
 └── frontend/
     ├── css/
@@ -85,9 +87,12 @@ Tenant_Tracker/
 
 ## Installation
 
+### Local Development Setup
+
 1. **Clone or download the project**
    ```bash
-   cd tenant-tracker
+   git clone https://github.com/gunjanpandey1/Tenant_Tracker.git
+   cd Tenant_Tracker
    ```
 
 2. **Install dependencies**
@@ -95,7 +100,21 @@ Tenant_Tracker/
    npm install
    ```
 
-3. **Start MongoDB**
+3. **Set up environment variables**
+   The project includes a `.env` file for local development. Update it with your settings:
+   ```bash
+   # Database
+   MONGODB_URI=mongodb://localhost:27017/tenant-tracker
+   
+   # Authentication
+   JWT_SECRET=your-super-secret-jwt-key-for-local-development-123456
+   
+   # Server
+   PORT=3001
+   NODE_ENV=development
+   ```
+
+4. **Start MongoDB**
    Make sure MongoDB is running on your system:
    ```bash
    # On macOS with Homebrew
@@ -108,12 +127,17 @@ Tenant_Tracker/
    # Start MongoDB service from Services panel
    ```
 
-4. **Run the application**
+5. **Run the application**
    ```bash
    npm start
    ```
+   
+   For development with auto-restart:
+   ```bash
+   npm run dev
+   ```
 
-5. **Access the application**
+6. **Access the application**
    Open your browser and navigate to:
    ```
    http://localhost:3001
@@ -245,18 +269,69 @@ The `frontend/js/common.js` file contains:
 4. **Input Validation**: All inputs are validated
 5. **Rate Limiting**: Consider adding rate limiting
 
-## Production Deployment
+## Deployment
 
-1. **Environment Variables**:
-   ```bash
-   export JWT_SECRET=your-secure-secret
-   export MONGODB_URI=mongodb://localhost:27017/tenant-tracker
-   export PORT=3000
+### Deploy to Render (Recommended)
+
+1. **Set up MongoDB Atlas**:
+   - Create account at [MongoDB Atlas](https://www.mongodb.com/atlas/database)
+   - Create a free M0 cluster
+   - Create database user and get connection string
+   - **Important**: Add `0.0.0.0/0` to IP whitelist for Render deployment
+
+2. **Deploy to Render**:
+   - Sign up at [render.com](https://render.com)
+   - Connect your GitHub repository
+   - Create new "Web Service"
+   - Configure build settings:
+     ```
+     Build Command: npm install
+     Start Command: npm start
+     Environment: Node
+     ```
+
+3. **Environment Variables** (Set in Render dashboard):
+   ```
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/tenant-tracker
+   JWT_SECRET=your-super-secure-production-jwt-secret
+   NODE_ENV=production
    ```
 
-2. **MongoDB**: Set up MongoDB Atlas or local MongoDB
-3. **Process Manager**: Use PM2 or similar for production
-4. **Reverse Proxy**: Use Nginx for serving static files
+### Other Deployment Options
+
+#### Heroku
+1. Install Heroku CLI
+2. Create Heroku app: `heroku create tenant-tracker-app`
+3. Set environment variables: `heroku config:set MONGODB_URI=your_uri`
+4. Deploy: `git push heroku main`
+
+#### Railway
+1. Connect GitHub repo to Railway
+2. Set environment variables
+3. Deploy automatically
+
+### Production Environment Variables
+```bash
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/tenant-tracker
+JWT_SECRET=your-super-secure-production-secret-key
+NODE_ENV=production
+PORT=3000  # Usually set automatically by hosting platform
+```
+
+### Database Setup (MongoDB Atlas)
+1. Create cluster
+2. Create database user
+3. Configure network access (add `0.0.0.0/0` for cloud deployments)
+4. Get connection string
+5. Replace `<password>` with your database user password
+
+### Post-Deployment Checklist
+- [ ] App is accessible via deployment URL
+- [ ] Database connection is working
+- [ ] User registration/login works
+- [ ] All API endpoints are functional
+- [ ] UPI payment QR generation works
+- [ ] File uploads (if any) are working
 
 ## Contributing
 
