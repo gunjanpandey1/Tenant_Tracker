@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Tracker - Property Management Made Easy</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-building"></i> Tenant Tracker</h1>
+            <p>Streamline your property management with our comprehensive tenant tracking system</p>
+        </div>
+
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3>Landlord Portal</h3>
+                <p>Manage your properties, track tenant payments, and verify rent collections with ease. Get real-time insights into your rental business.</p>
+                <a href="register.html" class="btn">Get Started</a>
+                <a href="login.html" class="btn btn-secondary">Login</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <h3>Tenant Portal</h3>
+                <p>View your property details, check rent due dates, and make secure payments through UPI integration. Stay updated on your rental status.</p>
+                <a href="register.html" class="btn">Get Started</a>
+                <a href="login.html" class="btn btn-secondary">Login</a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-qrcode"></i>
+                <h4>QR Code Payments</h4>
+                <p>Generate UPI QR codes for instant rent payments</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <h4>Secure Authentication</h4>
+                <p>JWT-based secure login system for all users</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-chart-line"></i>
+                <h4>Payment Tracking</h4>
+                <p>Real-time payment status and verification system</p>
+            </div>
+            <div class="feature">
+                <i class="fas fa-mobile-alt"></i>
+                <h4>Mobile Friendly</h4>
+                <p>Responsive design that works on all devices</p>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="../js/common.js"></script>
+    <script>
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            const userRole = localStorage.getItem('userRole');
+            
+            if (token && userRole) {
+                // Redirect based on role
+                if (userRole === 'landlord') {
+                    window.location.href = 'landlord-dashboard.html';
+                } else if (userRole === 'tenant') {
+                    window.location.href = 'tenant-dashboard.html';
+                }
+            }
+        });
+
+        // Add smooth scrolling and loading effects
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (this.href) {
+                    e.preventDefault();
+                    document.getElementById('loading').style.display = 'block';
+                    
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 500);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

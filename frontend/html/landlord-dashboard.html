@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landlord Dashboard - Tenant Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        /* Add any specific styles needed for agreement cards if not already in main.css */
+        .agreement-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease-in-out;
+        }
+        .agreement-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .agreement-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .agreement-card strong {
+            color: #555;
+        }
+        .agreement-card .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+        .agreement-card .btn {
+            margin-top: 15px;
+        }
+        .agreement-card .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        /* Specific styles for landlord agreement creation form */
+        #createAgreementForm {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <i class="fas fa-building"></i> Tenant Tracker
+        </div>
+        <div class="user-info">
+            <span>Welcome, <strong id="user"></strong></span>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1><i class="fas fa-user-tie"></i> Landlord Dashboard</h1>
+            <p>Manage your properties and track tenant payments</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('properties')">
+                <i class="fas fa-building"></i> Properties
+            </button>
+            <button class="tab" onclick="showTab('tenants')">
+                <i class="fas fa-users"></i> Tenants
+            </button>
+            <button class="tab" onclick="showTab('payments')">
+                <i class="fas fa-credit-card"></i> Payments
+            </button>
+            <button class="tab" onclick="showTab('agreements')">
+                <i class="fas fa-file-contract"></i> Agreements
+            </button>
+        </div>
+
+        <div id="properties" class="tab-content active">
+            <div class="card">
+                <h2><i class="fas fa-plus"></i> Add New Property</h2>
+                <div id="propertyAlert" class="alert" style="display: none;"></div>
+                <form id="propertyForm">
+                    <div class="form-group">
+                        <label for="address">Property Address</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rentAmount">Monthly Rent (₹)</label>
+                        <input type="number" id="rentAmount" name="rentAmount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="propertyType">Property Type</label>
+                        <select id="propertyType" name="type" required>
+                            <option value="">Select Type</option>
+                            <option value="1BHK">1 BHK</option>
+                            <option value="2BHK">2 BHK</option>
+                            <option value="3BHK">3 BHK</option>
+                            <option value="Studio">Studio</option>
+                            <option value="Penthouse">Penthouse</option>
+                            <option value="Villa">Villa</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bedrooms">Bedrooms</label>
+                        <input type="number" id="bedrooms" name="bedrooms" min="0" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bathrooms">Bathrooms</label>
+                        <input type="number" id="bathrooms" name="bathrooms" min="0" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="areaSqFt">Area (Sq. Ft.)</label>
+                        <input type="number" id="areaSqFt" name="areaSqFt" min="0" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3" placeholder="e.g., Spacious, near market, good amenities..."></textarea>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-plus"></i> Add Property
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-list"></i> My Properties</h2>
+                <div class="loading" id="propertiesLoading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading properties...</p>
+                </div>
+                <div class="property-grid" id="propertiesGrid">
+                    </div>
+            </div>
+        </div>
+
+        <div id="tenants" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-user-plus"></i> Assign Tenant to Property</h2>
+                <div id="assignAlert" class="alert" style="display: none;"></div>
+                <form id="assignForm">
+                    <div class="form-group">
+                        <label for="propertySelect">Select Property</label>
+                        <select id="propertySelect" name="propertyId" required>
+                            <option value="">Select a property</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tenantSelect">Select Tenant</label>
+                        <select id="tenantSelect" name="tenantId" required>
+                            <option value="">Select a tenant</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">
+                        <i class="fas fa-link"></i> Assign Tenant
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="payments" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-credit-card"></i> Payment Status</h2>
+                <div id="paymentsAlert" class="alert" style="display: none;"></div>
+                <div class="loading" id="paymentsLoading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading payments...</p>
+                </div>
+                <div class="table-container">
+                    <table class="tenant-table" id="paymentsTable">
+                        <thead>
+                            <tr>
+                                <th>Tenant</th>
+                                <th>Property</th>
+                                <th>Rent Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="agreements" class="tab-content">
+            <div class="card">
+                <h2><i class="fas fa-file-contract"></i> Rental Agreements</h2>
+                <p style="color: #666; margin-bottom: 20px;">View and manage rental agreements with your tenants.</p>
+                
+                <div id="landlordAgreementAlert" class="alert" style="display: none;"></div>
+
+                <div class="loading" id="agreementsLoading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading agreements...</p>
+                </div>
+                
+                <div id="landlordAgreementsContainer">
+                    </div>
+
+                <div id="createAgreementForm">
+                    <h3><i class="fas fa-plus-circle"></i> Create New Agreement</h3>
+                    <div id="createAgreementAlert" class="alert" style="display: none;"></div>
+                    <form id="newAgreementForm">
+                        <div class="form-group">
+                            <label>Property</label>
+                            <select id="newAgreementPropertyId" name="propertyId" required>
+                                <option value="">Select Property</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tenant</label>
+                            <select id="newAgreementTenantId" name="tenantId" required>
+                                <option value="">Select Tenant</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Rent Amount (₹)</label>
+                            <input type="number" id="newAgreementRentAmount" name="rentAmount" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Security Deposit (₹)</label>
+                            <input type="number" id="newAgreementSecurityDeposit" name="securityDeposit" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Lease Duration (months)</label>
+                            <input type="number" id="newAgreementLeaseDuration" name="leaseDuration" min="1" max="36" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="newAgreementStartDate" name="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Terms</label>
+                            <textarea id="newAgreementTerms" name="terms" rows="3" placeholder="Any additional terms or conditions..."></textarea>
+                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-file-signature"></i> Create Agreement
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/common.js"></script>
+    <script src="../js/landlord-dashboard.js"></script>
+    <script>
+        // Authentication check
+        if (!Auth.isAuthenticated() || !Auth.checkRole('landlord')) {
+            window.location.href = 'login.html';
+        }
+
+        // Set Full Name || username
+        document.getElementById('user').textContent = Auth.getUsername() || 'Landlord';
+
+        // Logout function
+        function logout() {
+            NavigationUtils.logout();
+        }
+
+        // Tab switching function
+        function showTab(tabName) {
+            TabManager.showTab(tabName);
+            
+            // Load tab-specific data
+            if (tabName === 'properties') {
+                loadProperties();
+            } else if (tabName === 'tenants') {
+                loadPropertiesForAssignment();
+                loadTenants(); // Now loads unassigned tenants
+            } else if (tabName === 'payments') {
+                loadPayments();
+            } else if (tabName === 'agreements') {
+                loadLandlordAgreements();
+                loadPropertiesForAgreementCreation(); // Load properties for new agreement form
+                loadTenantsForAgreementCreation(); // Load tenants for new agreement form
+            }
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();reportError
+            showTab('properties'); 
+        });
+    </script>
+</body>
+</html>
