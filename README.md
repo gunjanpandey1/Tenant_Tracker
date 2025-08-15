@@ -1,28 +1,41 @@
 # Tenant Tracker
 
-A comprehensive property management system for landlords and tenants with UPI payment integration.
+A comprehensive property management system for landlords and tenants with UPI payment integration, digital rental agreements, and advanced property management features.
 
 ## Features
 
-### 🏠 Landlord Features
-- Add and manage properties
-- Assign tenants to properties
-- Track rent payment status
-- Verify tenant payments
-- Real-time dashboard with statistics
+### Landlord Features
+- Add and manage properties with detailed information (bedrooms, bathrooms, area, type)
+- Assign tenants to properties from available tenant pool
+- Track rent payment status and verify payments
+- Create and manage digital rental agreements
+- View payment history and tenant information
+- Remove tenants and delete properties
+- Real-time dashboard with property statistics
 
-### 🏡 Tenant Features
-- View property details
-- Check rent due dates
-- Generate UPI QR codes for payments
-- Mark payments as paid
-- View payment history
+### Tenant Features
+- Browse and filter available properties by location, type, price range
+- Contact landlords about specific properties
+- View assigned property details and rent information
+- Generate UPI QR codes for rent payments
+- Mark payments as paid and view payment history
+- Sign digital rental agreements electronically
+- Check rent due dates and payment status
 
-### 🔐 Security Features
-- JWT-based authentication
-- Role-based access control
-- Password hashing with bcrypt
+### Advanced Features
+- Digital rental agreement system with electronic signatures
+- Comprehensive payment history tracking
+- Property filtering and search functionality
+- Contact request system between tenants and landlords
+- Automated tenant assignment management
+- Property vacancy tracking
+
+### Security Features
+- JWT-based authentication with 24-hour token expiration
+- Role-based access control for landlords and tenants
+- Password hashing with bcryptjs
 - Input validation and sanitization
+- IP address tracking for agreement signatures
 
 ## Tech Stack
 
@@ -30,32 +43,38 @@ A comprehensive property management system for landlords and tenants with UPI pa
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
 - **MongoDB** - Database
-- **Mongoose** - ODM
-- **JWT** - Authentication
+- **Mongoose** - ODM for MongoDB
+- **JWT (jsonwebtoken)** - Authentication tokens
 - **bcryptjs** - Password hashing
-- **qrcode** - QR code generation
+- **qrcode** - QR code generation for UPI payments
+- **cors** - Cross-origin resource sharing
+- **body-parser** - Request body parsing
+- **nodemon** - Development server auto-restart
 
 ### Frontend
-- **HTML5** - Markup
+- **HTML5** - Markup language
 - **CSS3** - Styling with modern features
-- **JavaScript** - Client-side logic
-- **Font Awesome** - Icons
-- **Responsive Design** - Mobile-friendly
+- **JavaScript** - Client-side logic and DOM manipulation
+- **Font Awesome** - Icon library
+- **Responsive Design** - Mobile-friendly interface
 
 ## Project Structure
 
 ```
-tenant-tracker/
-├── server.js                 # Main server file
-├── package.json              # Dependencies and scripts
+Tenant_Tracker/
+├── server.js                 # Main server file with all API routes
+├── package.json              # Dependencies and npm scripts
+├── package-lock.json         # Dependency lock file
 ├── README.md                 # Project documentation
+├── node_modules/             # Installed dependencies
 └── frontend/
     ├── css/
     │   └── main.css          # Main stylesheet
     ├── js/
-    │   ├── common.js         # Common utilities
+    │   ├── common.js         # Common utilities and helpers
     │   ├── auth.js           # Authentication logic
-    │   └── tenant-dashboard.js # Tenant dashboard logic
+    │   ├── tenant-dashboard.js # Tenant dashboard functionality
+    │   └── landlord-dashboard.js # Landlord dashboard functionality
     └── html/
         ├── index.html        # Landing page
         ├── login.html        # Login page
@@ -97,48 +116,98 @@ tenant-tracker/
 5. **Access the application**
    Open your browser and navigate to:
    ```
-   http://localhost:3000
+   http://localhost:3001
    ```
 
 ## API Endpoints
 
 ### Authentication
-- `POST /register` - Register new user
-- `POST /login` - User login
+- `POST /api/register` - Register new user
+- `POST /api/login` - User login
 
-### Properties (Landlord)
-- `GET /properties` - Get landlord's properties
-- `POST /properties` - Add new property
-- `GET /tenants` - Get all tenants for assignment
-- `POST /assign-tenant` - Assign tenant to property
+### Properties Management
+- `GET /api/properties` - Get landlord's properties (landlord only)
+- `POST /api/properties` - Add new property with details (landlord only)
+- `DELETE /api/properties/:propertyId` - Delete property (landlord only)
+- `GET /api/available-properties` - Browse available properties with filters (tenant only)
+
+### Tenant Management
+- `GET /api/tenants` - Get all tenants (landlord only)
+- `GET /api/unassigned-tenants` - Get tenants available for assignment (landlord only)
+- `POST /api/assign-tenant` - Assign tenant to property (landlord only)
+- `POST /api/remove-tenant` - Remove tenant from property (landlord only)
+- `POST /api/contact-landlord` - Send contact request to landlord (tenant only)
+
+### Dashboard and Information
+- `GET /api/tenant-dashboard` - Get tenant's property and payment info (tenant only)
+- `GET /api/tenant-payments` - Get payment status for properties (landlord only)
 
 ### Payments
-- `GET /tenant-dashboard` - Get tenant's property info
-- `GET /generate-qr/:propertyId` - Generate payment QR code
-- `POST /mark-paid` - Mark rent as paid (tenant)
-- `GET /tenant-payments` - Get payment status (landlord)
-- `POST /verify-payment` - Verify payment (landlord)
+- `GET /api/generate-qr/:propertyId` - Generate UPI payment QR code (tenant only)
+- `POST /api/mark-paid` - Mark rent as paid (tenant only)
+- `POST /api/verify-payment` - Verify tenant payment (landlord only)
+- `GET /api/payment-history` - Get comprehensive payment history
+
+### Digital Rental Agreements
+- `POST /api/request-agreement` - Request rental agreement (tenant only)
+- `POST /api/create-agreement` - Create rental agreement (landlord only)
+- `GET /api/agreements` - Get user's agreements
+- `POST /api/sign-agreement/:agreementId` - Digitally sign agreement
 
 ## Database Schema
 
 ### User
 - `username` - Unique username
-- `email` - Email address
-- `password` - Hashed password
-- `role` - 'landlord' or 'tenant'
+- `email` - Unique email address
+- `password` - Hashed password using bcryptjs
+- `role` - User role ('landlord' or 'tenant')
+- `createdAt` - Account creation timestamp
 
 ### Property
 - `address` - Property address
-- `rentAmount` - Monthly rent
-- `landlordId` - Reference to landlord
-- `tenantId` - Reference to tenant (optional)
+- `rentAmount` - Monthly rent amount
+- `type` - Property type ('1BHK', '2BHK', '3BHK', 'Studio', 'Penthouse', 'Villa', 'Other', 'Commercial')
+- `bedrooms` - Number of bedrooms
+- `bathrooms` - Number of bathrooms
+- `areaSqFt` - Area in square feet
+- `description` - Property description
+- `landlordId` - Reference to landlord user
+- `tenantId` - Reference to tenant user (null if vacant)
+- `createdAt` - Property creation timestamp
 
 ### TenantInfo
-- `tenantId` - Reference to tenant
-- `propertyId` - Reference to property
-- `paymentStatus` - 'pending', 'paid', or 'verified'
+- `tenantId` - Reference to tenant user (unique)
+- `propertyId` - Reference to assigned property
+- `paymentStatus` - Payment status ('pending', 'paid', 'verified')
+- `lastPaymentDate` - Date of last payment
 - `dueDate` - Next payment due date
-- `lastPaymentDate` - Last payment date
+- `createdAt` - Assignment timestamp
+
+### PaymentHistory
+- `tenantId` - Reference to tenant user
+- `propertyId` - Reference to property
+- `amount` - Payment amount
+- `paymentDate` - Date of payment
+- `status` - Payment status ('paid', 'verified')
+- `notes` - Additional notes
+- `createdAt` - Record creation timestamp
+
+### RentalAgreement
+- `tenantId` - Reference to tenant user
+- `landlordId` - Reference to landlord user
+- `propertyId` - Reference to property
+- `agreementId` - Unique agreement identifier
+- `rentAmount` - Agreed rent amount
+- `securityDeposit` - Security deposit amount
+- `leaseDuration` - Lease duration in months
+- `startDate` - Agreement start date
+- `endDate` - Agreement end date
+- `terms` - Agreement terms and conditions
+- `status` - Agreement status ('draft', 'pending_tenant_signature', 'pending_landlord_signature', 'signed', 'cancelled')
+- `tenantSignature` - Tenant signature details (signed, signedAt, ipAddress)
+- `landlordSignature` - Landlord signature details (signed, signedAt, ipAddress)
+- `createdAt` - Agreement creation timestamp
+- `updatedAt` - Last modification timestamp
 
 ## UPI Payment Integration
 

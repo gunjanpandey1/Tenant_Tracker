@@ -8,7 +8,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = 'your-jwt-secret-key'; // CONSIDER MOVING TO ENVIRONMENT VARIABLE
+const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret-key';
 
 // Middleware
 app.use(cors()); // Enables Cross-Origin Resource Sharing
@@ -17,7 +17,8 @@ app.use(express.urlencoded({ extended: true })); // Parses incoming requests wit
 app.use(express.static('frontend')); // Serves static files from the 'frontend' directory
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/tenant-tracker')
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tenant-tracker';
+mongoose.connect(MONGODB_URI)
     .then(() => console.log('MongoDB connected successfully!'))
     .catch(err => console.error('MongoDB connection error:', err));
 
