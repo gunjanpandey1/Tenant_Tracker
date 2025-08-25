@@ -162,36 +162,17 @@ app.get('/tenant-dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'html', 'tenant-dashboard.html'));
 });
 
-// // Optional: Serve without .html extension for cleaner URLs
-// app.get('/login', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'frontend', 'html', 'login.html'));
-// });
-
-// app.get('/register', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'frontend', 'html', 'register.html'));
-// });
-
-// app.get('/landlord-dashboard', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'frontend', 'html', 'landlord-dashboard.html'));
-// });
-
-// app.get('/tenant-dashboard', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'frontend', 'html', 'tenant-dashboard.html'));
-// });
-
 // --- API Routes ---
 
 // User Registration
 app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
-
         // Check if user with given email or username already exists
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
             return res.status(400).json({ error: 'User with this email or username already exists.' });
         }
-
         // Hash password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -307,8 +288,6 @@ app.get('/api/properties', authenticateToken, async (req, res) => {
     }
 });
 
-// Get all tenants (Landlord only, for general tenant list, now replaced by unassigned-tenants for assignment)
-// This route might still be useful for a general "all tenants" list if needed elsewhere.
 app.get('/api/tenants', authenticateToken, async (req, res) => {
     try {
         if (req.user.role !== 'landlord') {
