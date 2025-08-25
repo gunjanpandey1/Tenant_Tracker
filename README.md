@@ -107,10 +107,10 @@ Tenant_Tracker/
    MONGODB_URI=mongodb://localhost:27017/tenant-tracker
    
    # Authentication
-   JWT_SECRET=your-super-secret-jwt-key-for-local-development-123456
+   JWT_SECRET=your-super-secret-jwt-key
    
    # Server
-   PORT=3001
+   PORT=3000
    NODE_ENV=development
    ```
 
